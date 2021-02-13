@@ -2,6 +2,7 @@ package org.sabaini.findmycar
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,13 +13,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import org.sabaini.findmycar.databinding.ActivityMainBinding
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     // A default location (Brazil) and default zoom to use when location permission is
     // not granted.
-    private val defaultLocation = LatLng(-14.2401, -53.1805)
+    private val defaultLocation = LatLng(-18.0517836, -53.47937)
     private var locationPermissionGranted = false
 
     // The geographical location where the device is currently located. That is, the last-known
@@ -58,14 +59,51 @@ class MainActivity : AppCompatActivity() {
         mapFragment.getMapAsync {
             map = it
 
+            map?.moveCamera(
+                CameraUpdateFactory
+                    .newLatLngZoom(defaultLocation, 5F)
+            )
+
             // Prompt the user for permission.
             getLocationPermission()
 
             // Turn on the My Location layer and the related control on the map.
             updateLocationUI()
+        }
 
-            // Get the current location of the device and set the position of the map.
+        // Get the current location of the device and set the position of the map.
+        binding.btSaveLocation.setOnClickListener {
             getDeviceLocation()
+        }
+
+        // Get the saved location and set the position on the map.
+        binding.btShowLocation.setOnClickListener {
+            if (lastKnownLocation != null) {
+                map?.addMarker(
+                    MarkerOptions()
+                        .title("You parked here")
+                        .position(
+                            LatLng(
+                                lastKnownLocation!!.latitude,
+                                lastKnownLocation!!.longitude
+                            )
+                        )
+                )
+
+                map?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            lastKnownLocation!!.latitude,
+                            lastKnownLocation!!.longitude
+                        ), DEFAULT_ZOOM.toFloat()
+                    )
+                )
+
+                val geocoder = Geocoder(this, Locale.getDefault())
+                val addresses = geocoder.getFromLocation(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude, 1)
+                val address = addresses[0].getAddressLine(0)
+                binding.txtCurrentLocation.text = address
+            }
         }
     }
 
@@ -104,6 +142,11 @@ class MainActivity : AppCompatActivity() {
                                     ), DEFAULT_ZOOM.toFloat()
                                 )
                             )
+
+                            val geocoder = Geocoder(this, Locale.getDefault())
+                            val addresses = geocoder.getFromLocation(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude, 1)
+                            val address = addresses[0].getAddressLine(0)
+                            binding.txtCurrentLocation.text = address
                         }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.")

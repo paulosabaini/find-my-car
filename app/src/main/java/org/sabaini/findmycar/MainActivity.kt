@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 import org.sabaini.findmycar.databinding.ActivityMainBinding
 import org.sabaini.findmycar.mvp.FindMyCarContract
 import org.sabaini.findmycar.mvp.FindMyCarPresenter
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity(), FindMyCarContract.View {
 
         // Get the current location of the device and set the position of the map.
         binding.btSaveLocation.setOnClickListener {
-            presenter.getDeviceLocation()
+            presenter.saveLocation()
         }
 
         // Get the saved location and set the position on the map.
@@ -89,5 +90,9 @@ class MainActivity : AppCompatActivity(), FindMyCarContract.View {
     */
     override fun showLocationText(text: String) {
         binding.txtCurrentLocation.text = text
+    }
+
+    override fun showSnackBar(text: String) {
+        Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG).show()
     }
 }

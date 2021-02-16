@@ -3,6 +3,7 @@ package org.sabaini.findmycar.mvp
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
+import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -12,12 +13,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.snackbar.Snackbar
 import org.sabaini.findmycar.MainActivity
 import org.sabaini.findmycar.R
 import java.util.*
 
 private val TAG = MainActivity::class.java.simpleName
-private const val DEFAULT_ZOOM = 15
+private const val DEFAULT_ZOOM = 15F
 
 class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarContract.Presenter {
 
@@ -57,10 +59,8 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         mapFragment.getMapAsync {
             map = it
 
-            map?.moveCamera(
-                CameraUpdateFactory
-                    .newLatLngZoom(defaultLocation, 5F)
-            )
+            // Move camera to the default location
+            moveCamera(defaultLocation, 5F)
 
             // Prompt the user for permission.
             view.getLocationPermission()
@@ -70,51 +70,46 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         }
     }
 
-    override fun saveLocation() {
-        TODO("Not yet implemented")
+    // Return the LatLng object for the last known location
+    private fun getLastKnownLocation(): LatLng {
+        return LatLng(
+            lastKnownLocation!!.latitude,
+            lastKnownLocation!!.longitude
+        )
     }
 
-    override fun showLocation() {
-        if (lastKnownLocation != null) {
-            map?.addMarker(
-                MarkerOptions()
-                    .title("You parked here")
-                    .position(
-                        LatLng(
-                            lastKnownLocation!!.latitude,
-                            lastKnownLocation!!.longitude
-                        )
-                    )
-            )
-
-            map?.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(
-                        lastKnownLocation!!.latitude,
-                        lastKnownLocation!!.longitude
-                    ), DEFAULT_ZOOM.toFloat()
-                )
-            )
-
-            val geocoder = Geocoder(view as MainActivity, Locale.getDefault())
-            val addresses = geocoder.getFromLocation(
-                lastKnownLocation!!.latitude,
-                lastKnownLocation!!.longitude,
-                1
-            )
-            val address = addresses[0].getAddressLine(0)
-            view.showLocationText(address)
-        }
+    // Places the camera on the map
+    private fun moveCamera(location: LatLng, zoom: Float) {
+        map?.moveCamera(
+            CameraUpdateFactory
+                .newLatLngZoom(location, zoom)
+        )
     }
 
-    override fun traceLocation() {
-        TODO("Not yet implemented")
+    // Places a marker in a location
+    private fun addMarker(location: LatLng) {
+        map?.addMarker(
+            MarkerOptions()
+                .title("You parked here")
+                .position(location)
+        )
+    }
+
+    // Get the address string of a location
+    private fun getAddress(location: LatLng): String {
+        val geocoder = Geocoder(view as MainActivity, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(
+            location.latitude,
+            location.longitude,
+            1
+        )
+        return addresses[0].getAddressLine(0)
     }
 
     /*
-         * Gets the current location of the device, and positions the map's camera.
-         */
-    fun getDeviceLocation() {
+     * Gets the current location of the device, and positions the map's camera.
+     */
+    override fun saveLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
@@ -127,42 +122,16 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.result
                         if (lastKnownLocation != null) {
-                            map?.addMarker(
-                                MarkerOptions()
-                                    .title("You parked here")
-                                    .position(
-                                        LatLng(
-                                            lastKnownLocation!!.latitude,
-                                            lastKnownLocation!!.longitude
-                                        )
-                                    )
-                            )
+                            addMarker(getLastKnownLocation())
 
-                            map?.moveCamera(
-                                CameraUpdateFactory.newLatLngZoom(
-                                    LatLng(
-                                        lastKnownLocation!!.latitude,
-                                        lastKnownLocation!!.longitude
-                                    ), DEFAULT_ZOOM.toFloat()
-                                )
-                            )
+                            moveCamera(getLastKnownLocation(), DEFAULT_ZOOM)
 
-                            val geocoder = Geocoder(view, Locale.getDefault())
-                            val addresses = geocoder.getFromLocation(
-                                lastKnownLocation!!.latitude,
-                                lastKnownLocation!!.longitude,
-                                1
-                            )
-                            val address = addresses[0].getAddressLine(0)
-                            view.showLocationText(address)
+                            view.showLocationText(getAddress(getLastKnownLocation()))
                         }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.")
                         Log.e(TAG, "Exception: %s", task.exception)
-                        map?.moveCamera(
-                            CameraUpdateFactory
-                                .newLatLngZoom(defaultLocation, DEFAULT_ZOOM.toFloat())
-                        )
+                        moveCamera(defaultLocation, DEFAULT_ZOOM)
                         map?.uiSettings?.isMyLocationButtonEnabled = false
                     }
                 }
@@ -170,6 +139,23 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)
         }
+    }
+
+    override fun showLocation() {
+        if (lastKnownLocation != null) {
+
+            addMarker(getLastKnownLocation())
+
+            moveCamera(getLastKnownLocation(), DEFAULT_ZOOM)
+
+            view.showLocationText(getAddress(getLastKnownLocation()))
+        } else {
+            view.showSnackBar("Location not found!")
+        }
+    }
+
+    override fun traceLocation() {
+        TODO("Not yet implemented")
     }
 
     /*

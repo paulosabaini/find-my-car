@@ -1,9 +1,9 @@
-package org.sabaini.findmycar.mvp
+package org.sabaini.findmycar.presenter
 
+import android.graphics.Color
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
-import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -11,12 +11,18 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.material.snackbar.Snackbar
-import org.sabaini.findmycar.MainActivity
+import com.google.maps.android.PolyUtil
+import kotlinx.coroutines.*
+import org.sabaini.findmycar.view.MainActivity
 import org.sabaini.findmycar.R
+import org.sabaini.findmycar.model.api.Directions
+import org.sabaini.findmycar.model.api.Network
 import java.util.*
+import kotlin.collections.ArrayList
 
 private val TAG = MainActivity::class.java.simpleName
 private const val DEFAULT_ZOOM = 15F
@@ -42,10 +48,12 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
     // location retrieved by the Fused Location Provider.
     private var lastKnownLocation: Location? = null
 
+    private var polylines: MutableList<Polyline> = ArrayList()
+
     override fun start() {
         // Construct a PlacesClient.
         Places.initialize(
-            (view as MainActivity).applicationContext, R.string.maps_api_key.toString()
+            (view as MainActivity).applicationContext, view.getString(R.string.maps_api_key)
         )
         placesClient = Places.createClient(view)
 
@@ -106,6 +114,11 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         return addresses[0].getAddressLine(0)
     }
 
+    // Return a string with the lat and long values separated by a comma
+    private fun latLongToString(latLng: LatLng): String {
+        return "${latLng.latitude},${latLng.longitude}"
+    }
+
     /*
      * Gets the current location of the device, and positions the map's camera.
      */
@@ -141,8 +154,13 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         }
     }
 
+    /*
+     * Positions the map's camera to the saved location.
+     */
     override fun showLocation() {
         if (lastKnownLocation != null) {
+
+            removeRoute()
 
             addMarker(getLastKnownLocation())
 
@@ -154,8 +172,76 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         }
     }
 
-    override fun traceLocation() {
-        TODO("Not yet implemented")
+    /*
+     * Make a request to the Directions API and return a Directions object.
+     */
+    private suspend fun getDirections(origin: String, dest: String, key: String): Directions {
+        var directions: Directions? = null
+        withContext(Dispatchers.IO) {
+            try {
+                directions = Network.retrofitService.getDirections(origin, dest, key)
+            } catch (e: Exception) {
+                Log.d("Exception", e.toString())
+            }
+        }
+        return directions!!
+    }
+
+    /*
+     * Remove a route traced on the map.
+     */
+    private fun removeRoute() {
+        if (!polylines.isEmpty()) {
+            polylines.forEach {
+                it.remove()
+            }
+            polylines.clear()
+        }
+    }
+
+    /*
+     * Get the current location and the last known location and traces a route between this two points.
+     */
+    override fun routeLocation() {
+        try {
+            if (lastKnownLocation != null && locationPermissionGranted) {
+                val locationResult = fusedLocationProviderClient.lastLocation
+                locationResult.addOnCompleteListener(view as MainActivity) { task ->
+                    if (task.isSuccessful) {
+                        val origin = LatLng(task.result.latitude, task.result.longitude)
+                        val dest = getLastKnownLocation()
+                        val path: MutableList<List<LatLng>> = ArrayList()
+
+                        val scope = CoroutineScope(Job() + Dispatchers.Main)
+                        scope.launch {
+                            val directions = getDirections(
+                                latLongToString(origin),
+                                latLongToString(dest),
+                                view.getString(R.string.maps_api_key)
+                            )
+
+                            val steps = directions.routes[0].legs[0].steps
+                            steps.forEach {
+                                path.add(PolyUtil.decode(it.polyline.points))
+                            }
+
+                            removeRoute()
+
+                            path.forEach {
+                                polylines.add(
+                                    map?.addPolyline(
+                                        PolylineOptions().addAll(it).color(Color.RED)
+                                    )!!
+                                )
+                            }
+                            moveCamera(origin, DEFAULT_ZOOM)
+                        }
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
+        }
     }
 
     /*

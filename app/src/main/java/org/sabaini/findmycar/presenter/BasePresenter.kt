@@ -1,4 +1,4 @@
-package org.sabaini.findmycar.mvp
+package org.sabaini.findmycar.presenter
 
 interface BasePresenter {
     fun start()

@@ -1,4 +1,4 @@
-package org.sabaini.findmycar.mvp
+package org.sabaini.findmycar.presenter
 
 interface FindMyCarContract {
     interface View : BaseView<FindMyCarPresenter> {
@@ -10,6 +10,6 @@ interface FindMyCarContract {
     interface Presenter : BasePresenter {
         fun saveLocation()
         fun showLocation()
-        fun traceLocation()
+        fun routeLocation()
     }
 }

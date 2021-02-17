@@ -1,4 +1,4 @@
-package org.sabaini.findmycar
+package org.sabaini.findmycar.view
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -8,8 +8,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import org.sabaini.findmycar.databinding.ActivityMainBinding
-import org.sabaini.findmycar.mvp.FindMyCarContract
-import org.sabaini.findmycar.mvp.FindMyCarPresenter
+import org.sabaini.findmycar.presenter.FindMyCarContract
+import org.sabaini.findmycar.presenter.FindMyCarPresenter
 
 private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
 
@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity(), FindMyCarContract.View {
         // Get the saved location and set the position on the map.
         binding.btShowLocation.setOnClickListener {
             presenter.showLocation()
+        }
+
+        binding.btRouteLocation.setOnClickListener {
+            presenter.routeLocation()
         }
     }
 

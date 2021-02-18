@@ -238,6 +238,8 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                         }
                     }
                 }
+            } else {
+                view.showSnackBar("Location not found!")
             }
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)

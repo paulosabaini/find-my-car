@@ -4,14 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".view.MainActivity">
 
     <Button
         android:id="@+id/bt_save_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Save"
+        android:fontFamily="@font/roboto"
+        android:text="@string/button_save"
+        android:textAllCaps="false"
+        android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@+id/bt_show_location"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,7 +24,10 @@
         android:id="@+id/bt_show_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show"
+        android:fontFamily="@font/roboto"
+        android:text="@string/button_show"
+        android:textAllCaps="false"
+        android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@+id/bt_route_location"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/bt_save_location"
@@ -31,7 +37,10 @@
         android:id="@+id/bt_route_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Route"
+        android:fontFamily="@font/roboto"
+        android:text="@string/button_route"
+        android:textAllCaps="false"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/bt_show_location"
@@ -41,7 +50,10 @@
         android:id="@+id/txt_current_location"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/roboto"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bt_save_location" />
@@ -55,5 +67,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt_current_location" />
+        app:layout_constraintTop_toBottomOf="@+id/txt_current_location"
+        tools:layout="@layout/amu_info_window" />
 </androidx.constraintlayout.widget.ConstraintLayout>

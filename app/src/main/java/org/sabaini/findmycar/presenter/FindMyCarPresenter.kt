@@ -3,6 +3,7 @@ package org.sabaini.findmycar.presenter
 import android.graphics.Color
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -83,11 +84,10 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                     moveCamera(defaultLocation, 5F)
                 } else {
                     // Show last parked location
-                    val locationTemp = Location("")
-                    locationTemp.latitude = lastLocation.latitude
-                    locationTemp.longitude = lastLocation.longitude
-
-                    lastKnownLocation = locationTemp
+                    lastKnownLocation = Location(LocationManager.GPS_PROVIDER).apply {
+                        latitude = lastLocation.latitude
+                        longitude = lastLocation.longitude
+                    }
 
                     showLocation()
                 }
@@ -170,6 +170,8 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                                     )
                                 )
                             }
+
+                            map?.clear()
 
                             addMarker(getLastKnownLocation())
 

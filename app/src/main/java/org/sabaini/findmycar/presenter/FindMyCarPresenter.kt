@@ -83,7 +83,7 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                     moveCamera(defaultLocation, 5F)
                 } else {
                     // Show last parked location
-                    var locationTemp = Location("")
+                    val locationTemp = Location("")
                     locationTemp.latitude = lastLocation.latitude
                     locationTemp.longitude = lastLocation.longitude
 
@@ -163,7 +163,11 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                             val scope = CoroutineScope(Job() + Dispatchers.Main)
                             scope.launch {
                                 repository.insertLocation(
-                                    DatabaseLocation(null,lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                                    DatabaseLocation(
+                                        null,
+                                        lastKnownLocation!!.latitude,
+                                        lastKnownLocation!!.longitude
+                                    )
                                 )
                             }
 
@@ -223,7 +227,7 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
      * Remove a route traced on the map.
      */
     private fun removeRoute() {
-        if (!polylines.isEmpty()) {
+        if (polylines.isNotEmpty()) {
             polylines.forEach {
                 it.remove()
             }

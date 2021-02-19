@@ -83,13 +83,13 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                     moveCamera(defaultLocation, 5F)
                 } else {
                     // Show last parked location
-                    val lastLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    var locationTemp = Location("")
+                    locationTemp.latitude = lastLocation.latitude
+                    locationTemp.longitude = lastLocation.longitude
 
-                    addMarker(lastLatLng)
+                    lastKnownLocation = locationTemp
 
-                    moveCamera(lastLatLng, DEFAULT_ZOOM)
-
-                    view.showLocationText("Last park was in: "+getAddress(lastLatLng))
+                    showLocation()
                 }
             }
 

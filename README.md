@@ -22,7 +22,7 @@ You can
 * [Kotlin coroutines](https://developer.android.com/kotlin/coroutines)
 
 ## API
-* [Google Directions API API](https://developers.google.com/maps/documentation/directions/start)
+* [Google Directions API](https://developers.google.com/maps/documentation/directions/start)
 
 ## App Architecture
 * MVP

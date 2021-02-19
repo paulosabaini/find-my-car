@@ -19,8 +19,11 @@ import com.google.maps.android.PolyUtil
 import kotlinx.coroutines.*
 import org.sabaini.findmycar.view.MainActivity
 import org.sabaini.findmycar.R
+import org.sabaini.findmycar.model.LocationRepository
 import org.sabaini.findmycar.model.api.Directions
 import org.sabaini.findmycar.model.api.Network
+import org.sabaini.findmycar.model.db.DatabaseLocation
+import org.sabaini.findmycar.model.db.getDatabase
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -28,6 +31,10 @@ private val TAG = MainActivity::class.java.simpleName
 private const val DEFAULT_ZOOM = 15F
 
 class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarContract.Presenter {
+
+    // Initialize the repository to make database operations
+    private val database = getDatabase(view as MainActivity)
+    private val repository = LocationRepository(database)
 
     // Map fragment and initialized map.
     private lateinit var mapFragment: SupportMapFragment
@@ -67,8 +74,24 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
         mapFragment.getMapAsync {
             map = it
 
-            // Move camera to the default location
-            moveCamera(defaultLocation, 5F)
+            // Get the last saved location from the database
+            val scope = CoroutineScope(Job() + Dispatchers.Main)
+            scope.launch {
+                val lastLocation = repository.getLastLocation()
+                if (lastLocation == null) {
+                    // Move camera to the default location
+                    moveCamera(defaultLocation, 5F)
+                } else {
+                    // Show last parked location
+                    val lastLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+
+                    addMarker(lastLatLng)
+
+                    moveCamera(lastLatLng, DEFAULT_ZOOM)
+
+                    view.showLocationText("Last park was in: "+getAddress(lastLatLng))
+                }
+            }
 
             // Prompt the user for permission.
             view.getLocationPermission()
@@ -135,6 +158,15 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.result
                         if (lastKnownLocation != null) {
+
+                            // Save the location to the database
+                            val scope = CoroutineScope(Job() + Dispatchers.Main)
+                            scope.launch {
+                                repository.insertLocation(
+                                    DatabaseLocation(null,lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                                )
+                            }
+
                             addMarker(getLastKnownLocation())
 
                             moveCamera(getLastKnownLocation(), DEFAULT_ZOOM)

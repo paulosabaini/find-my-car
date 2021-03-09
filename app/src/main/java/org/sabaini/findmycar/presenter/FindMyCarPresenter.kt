@@ -20,22 +20,17 @@ import com.google.maps.android.PolyUtil
 import kotlinx.coroutines.*
 import org.sabaini.findmycar.view.MainActivity
 import org.sabaini.findmycar.R
-import org.sabaini.findmycar.model.LocationRepository
-import org.sabaini.findmycar.model.api.Directions
-import org.sabaini.findmycar.model.api.Network
 import org.sabaini.findmycar.model.db.DatabaseLocation
-import org.sabaini.findmycar.model.db.getDatabase
 import java.util.*
 import kotlin.collections.ArrayList
 
 private val TAG = MainActivity::class.java.simpleName
 private const val DEFAULT_ZOOM = 15F
 
-class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarContract.Presenter {
-
-    // Initialize the repository to make database operations
-    private val database = getDatabase(view as MainActivity)
-    private val repository = LocationRepository(database)
+class FindMyCarPresenter(
+    private val view: FindMyCarContract.View,
+    private val model: FindMyCarContract.Model
+) : FindMyCarContract.Presenter {
 
     // Map fragment and initialized map.
     private lateinit var mapFragment: SupportMapFragment
@@ -78,7 +73,7 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
             // Get the last saved location from the database
             val scope = CoroutineScope(Job() + Dispatchers.Main)
             scope.launch {
-                val lastLocation = repository.getLastLocation()
+                val lastLocation = model.getLastLocation()
                 if (lastLocation == null) {
                     // Move camera to the default location
                     moveCamera(defaultLocation, 5F)
@@ -162,7 +157,7 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
                             // Save the location to the database
                             val scope = CoroutineScope(Job() + Dispatchers.Main)
                             scope.launch {
-                                repository.insertLocation(
+                                model.insertLocation(
                                     DatabaseLocation(
                                         null,
                                         lastKnownLocation!!.latitude,
@@ -211,21 +206,6 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
     }
 
     /*
-     * Make a request to the Directions API and return a Directions object.
-     */
-    private suspend fun getDirections(origin: String, dest: String, key: String): Directions {
-        var directions: Directions? = null
-        withContext(Dispatchers.IO) {
-            try {
-                directions = Network.retrofitService.getDirections(origin, dest, key)
-            } catch (e: Exception) {
-                Log.d("Exception", e.toString())
-            }
-        }
-        return directions!!
-    }
-
-    /*
      * Remove a route traced on the map.
      */
     private fun removeRoute() {
@@ -252,7 +232,7 @@ class FindMyCarPresenter(private val view: FindMyCarContract.View) : FindMyCarCo
 
                         val scope = CoroutineScope(Job() + Dispatchers.Main)
                         scope.launch {
-                            val directions = getDirections(
+                            val directions = model.getDirections(
                                 latLongToString(origin),
                                 latLongToString(dest),
                                 view.getString(R.string.maps_api_key)

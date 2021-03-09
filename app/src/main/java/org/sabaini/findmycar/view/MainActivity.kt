@@ -8,6 +8,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import org.sabaini.findmycar.databinding.ActivityMainBinding
+import org.sabaini.findmycar.model.Model
+import org.sabaini.findmycar.model.db.getDatabase
 import org.sabaini.findmycar.presenter.FindMyCarContract
 import org.sabaini.findmycar.presenter.FindMyCarPresenter
 
@@ -25,7 +27,7 @@ class MainActivity : AppCompatActivity(), FindMyCarContract.View {
         setContentView(binding.root)
 
         // Bind the presenter to this activity and start it
-        presenter = FindMyCarPresenter(this)
+        presenter = FindMyCarPresenter(this, Model(getDatabase(this)))
         presenter.start()
 
         // Get the current location of the device and set the position of the map.

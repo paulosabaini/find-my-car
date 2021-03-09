@@ -8,9 +8,9 @@ You can
 
 ### Phone display:
 
-<img src="./screenshots/screenshot_01.jpg" width="30%" height="30%"> <img src="./screenshots/screenshot_02.jpg" width="30%" height="30%">
+<img src="./screenshots/screenshot_01.png" width="30%" height="30%"> <img src="./screenshots/screenshot_02.png" width="30%" height="30%">
 
-<img src="./screenshots/screenshot_03.jpg" width="30%" height="30%"> <img src="./screenshots/screenshot_04.jpg" width="30%" height="30%">
+<img src="./screenshots/screenshot_03.png" width="30%" height="30%"> <img src="./screenshots/screenshot_04.png" width="30%" height="30%">
 
 ## Library
 

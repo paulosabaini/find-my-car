@@ -4,20 +4,24 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sabaini.findmycar.model.api.Directions
-import org.sabaini.findmycar.model.api.Network
 import org.sabaini.findmycar.model.db.DatabaseLocation
-import org.sabaini.findmycar.model.db.LocationDb
 import org.sabaini.findmycar.contract.FindMyCarContract
+import org.sabaini.findmycar.model.api.DirectionsApi
+import org.sabaini.findmycar.model.db.LocationDao
+import javax.inject.Inject
 
 /* Repository that provides data to the Presenter */
 
-class Model(override val database: LocationDb) : FindMyCarContract.Model {
+class Model @Inject constructor(
+    override val locationDao: LocationDao,
+    override val directionsApi: DirectionsApi
+) : FindMyCarContract.Model {
 
     override suspend fun getLastLocation(): DatabaseLocation? {
         var lastLocation: DatabaseLocation? = null
         withContext(Dispatchers.IO) {
             try {
-                lastLocation = database.locationDao.getLastLocation()
+                lastLocation = locationDao.getLastLocation()
             } catch (e: Exception) {
                 Log.d("Exception", e.toString())
             }
@@ -28,7 +32,7 @@ class Model(override val database: LocationDb) : FindMyCarContract.Model {
     override suspend fun insertLocation(location: DatabaseLocation) {
         withContext(Dispatchers.IO) {
             try {
-                database.locationDao.insert(location)
+                locationDao.insert(location)
             } catch (e: Exception) {
                 Log.d("Exception", e.toString())
             }
@@ -42,7 +46,7 @@ class Model(override val database: LocationDb) : FindMyCarContract.Model {
         var directions: Directions? = null
         withContext(Dispatchers.IO) {
             try {
-                directions = Network.retrofitService.getDirections(origin, dest, key)
+                directions = directionsApi.getDirections(origin, dest, key)
             } catch (e: Exception) {
                 Log.d("Exception", e.toString())
             }

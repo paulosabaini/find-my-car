@@ -22,13 +22,13 @@ import org.sabaini.findmycar.view.MainActivity
 import org.sabaini.findmycar.R
 import org.sabaini.findmycar.contract.FindMyCarContract
 import org.sabaini.findmycar.model.db.DatabaseLocation
+import org.sabaini.findmycar.utilities.Constants.DEFAULT_ZOOM
+import org.sabaini.findmycar.utilities.Constants.TAG
 import java.util.*
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-private val TAG = MainActivity::class.java.simpleName
-private const val DEFAULT_ZOOM = 15F
-
-class FindMyCarPresenter(
+class FindMyCarPresenter @Inject constructor(
     private val view: FindMyCarContract.View,
     private val model: FindMyCarContract.Model
 ) : FindMyCarContract.Presenter {

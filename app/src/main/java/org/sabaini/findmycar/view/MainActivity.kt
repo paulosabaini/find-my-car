@@ -7,19 +7,22 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import org.sabaini.findmycar.databinding.ActivityMainBinding
-import org.sabaini.findmycar.model.Model
-import org.sabaini.findmycar.model.db.getDatabase
 import org.sabaini.findmycar.contract.FindMyCarContract
 import org.sabaini.findmycar.presenter.FindMyCarPresenter
+import org.sabaini.findmycar.utilities.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
+import javax.inject.Inject
 
-private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), FindMyCarContract.View {
 
     override lateinit var presenter: FindMyCarPresenter
 
     private lateinit var binding: ActivityMainBinding
+
+    @Inject
+    lateinit var model: FindMyCarContract.Model
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +30,7 @@ class MainActivity : AppCompatActivity(), FindMyCarContract.View {
         setContentView(binding.root)
 
         // Bind the presenter to this activity and start it
-        presenter = FindMyCarPresenter(this, Model(getDatabase(this)))
+        presenter = FindMyCarPresenter(this, model)
         presenter.start()
 
         // Get the current location of the device and set the position of the map.
@@ -77,6 +80,7 @@ class MainActivity : AppCompatActivity(), FindMyCarContract.View {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         presenter.setPermission(false)
         when (requestCode) {
             PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {

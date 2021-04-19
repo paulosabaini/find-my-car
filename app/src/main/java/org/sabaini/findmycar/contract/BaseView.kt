@@ -1,4 +1,4 @@
-package org.sabaini.findmycar.presenter
+package org.sabaini.findmycar.contract
 
 interface BaseView<T> {
     var presenter: T

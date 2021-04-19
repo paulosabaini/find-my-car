@@ -10,7 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import org.sabaini.findmycar.databinding.ActivityMainBinding
 import org.sabaini.findmycar.model.Model
 import org.sabaini.findmycar.model.db.getDatabase
-import org.sabaini.findmycar.presenter.FindMyCarContract
+import org.sabaini.findmycar.contract.FindMyCarContract
 import org.sabaini.findmycar.presenter.FindMyCarPresenter
 
 private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1

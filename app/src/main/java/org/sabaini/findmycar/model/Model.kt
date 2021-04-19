@@ -7,7 +7,7 @@ import org.sabaini.findmycar.model.api.Directions
 import org.sabaini.findmycar.model.api.Network
 import org.sabaini.findmycar.model.db.DatabaseLocation
 import org.sabaini.findmycar.model.db.LocationDb
-import org.sabaini.findmycar.presenter.FindMyCarContract
+import org.sabaini.findmycar.contract.FindMyCarContract
 
 /* Repository that provides data to the Presenter */
 

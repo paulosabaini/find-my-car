@@ -1,8 +1,9 @@
-package org.sabaini.findmycar.presenter
+package org.sabaini.findmycar.contract
 
 import org.sabaini.findmycar.model.api.Directions
 import org.sabaini.findmycar.model.db.DatabaseLocation
 import org.sabaini.findmycar.model.db.LocationDb
+import org.sabaini.findmycar.presenter.FindMyCarPresenter
 
 interface FindMyCarContract {
     interface Model : BaseModel<LocationDb> {

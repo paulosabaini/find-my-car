@@ -29,10 +29,10 @@ class Model @Inject constructor(
         return lastLocation
     }
 
-    override suspend fun insertLocation(location: DatabaseLocation) {
+    override suspend fun insertLocation(latitude: Double, longitude: Double) {
         withContext(Dispatchers.IO) {
             try {
-                locationDao.insert(location)
+                locationDao.insert(DatabaseLocation(null, latitude, longitude))
             } catch (e: Exception) {
                 Log.d("Exception", e.toString())
             }

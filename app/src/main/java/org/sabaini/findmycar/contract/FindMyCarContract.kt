@@ -10,7 +10,7 @@ interface FindMyCarContract {
 
     interface Model : BaseModel<LocationDao, DirectionsApi> {
         suspend fun getLastLocation(): DatabaseLocation?
-        suspend fun insertLocation(location: DatabaseLocation)
+        suspend fun insertLocation(latitude: Double, longitude: Double)
         suspend fun getDirections(origin: String, dest: String, key: String): Directions
     }
 

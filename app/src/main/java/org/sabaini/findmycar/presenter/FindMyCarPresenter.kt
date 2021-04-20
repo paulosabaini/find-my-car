@@ -21,7 +21,6 @@ import kotlinx.coroutines.*
 import org.sabaini.findmycar.view.MainActivity
 import org.sabaini.findmycar.R
 import org.sabaini.findmycar.contract.FindMyCarContract
-import org.sabaini.findmycar.model.db.DatabaseLocation
 import org.sabaini.findmycar.utilities.Constants.DEFAULT_ZOOM
 import org.sabaini.findmycar.utilities.Constants.TAG
 import java.util.*
@@ -159,11 +158,8 @@ class FindMyCarPresenter @Inject constructor(
                             val scope = CoroutineScope(Job() + Dispatchers.Main)
                             scope.launch {
                                 model.insertLocation(
-                                    DatabaseLocation(
-                                        null,
-                                        lastKnownLocation!!.latitude,
-                                        lastKnownLocation!!.longitude
-                                    )
+                                    lastKnownLocation!!.latitude,
+                                    lastKnownLocation!!.longitude
                                 )
                             }
 

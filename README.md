@@ -16,7 +16,6 @@ You can
 
 * [Maps SDK for Android](https://developers.google.com/maps/documentation/android-sdk/overview)
 * [Places SDK for Android](https://developers.google.com/places/android-sdk/overview)
-* [Moshi](https://github.com/square/moshi)
 * [Retrofit](https://square.github.io/retrofit/)
 * [Room Persistence Library](https://developer.android.com/training/data-storage/room)
 * [Kotlin coroutines](https://developer.android.com/kotlin/coroutines)

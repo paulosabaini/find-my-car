@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 /* Database to save the locations */
 
-@Database(entities = [DatabaseLocation::class], version = 2)
+@Database(entities = [DatabaseLocation::class], exportSchema = false , version = 2)
 abstract class LocationDatabase : RoomDatabase() {
 
     abstract fun locationDao(): LocationDao
